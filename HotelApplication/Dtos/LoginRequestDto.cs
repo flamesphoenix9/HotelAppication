@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace HotelApplication.Dtos
+{
+    public record LoginRequestDto
+    {
+        public string EmailAddress { get; init; } = string.Empty;
+        public string Password { get; init; } = string.Empty;
+    }
+}
