@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using HotelApplication.Dtos;
 using HotelApplication.Utilities;
-using Microsoft.AspNetCore.Identity.Data;
 
 namespace HotelApplication.Services
 {

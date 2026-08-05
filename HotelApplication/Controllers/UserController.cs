@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using HotelApplication.Dtos;
 using HotelApplication.Services;
 using Microsoft.AspNetCore.Authorization;
