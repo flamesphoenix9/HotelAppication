@@ -74,6 +74,10 @@ namespace HotelApplication.Migrations
                     b.HasKey("Id")
                         .HasName("pk_users");
 
+                    b.HasIndex(new[] { "EmailAddress" }, "EmailIndex")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_email_address");
+
                     b.ToTable("users", (string)null);
                 });
 #pragma warning restore 612, 618

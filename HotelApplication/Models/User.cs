@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelApplication.Models
 {
@@ -15,6 +16,7 @@ namespace HotelApplication.Models
         Receptionist = 3,
         Customer = 4
     };
+    [Index(nameof(User.EmailAddress), IsUnique = true , Name ="EmailIndex") ]
     public class User : BaseEntity
     {
         [Required]
