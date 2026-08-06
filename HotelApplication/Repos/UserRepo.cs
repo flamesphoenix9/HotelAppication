@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelApplication.Repos
 {
-    public class UserRepo(AppDbContext appDbContext):IUserRepo
+    public class UserRepo(AppDbContext appDbContext) : IUserRepo
     {
         private readonly AppDbContext _appDbContext = appDbContext;
 
@@ -15,14 +15,17 @@ namespace HotelApplication.Repos
             return result.Entity;
         }
 
-        public async Task<User?> FindByEmailAsync(string email,CancellationToken cancellationToken)
+        public async Task<List<User>?> CheckUniqueEmailAndUsername(string email, string username, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(username))
             {
                 return null;
             }
-            return await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.EmailAddress == email, cancellationToken);
+            var normalised_username = username.ToUpperInvariant();
+            var normalised_email = email.ToUpperInvariant();
+            return await _appDbContext.Users.AsNoTracking().Where(u => u.Normalised_Email == normalised_email || u.Normalised_Username == normalised_username).ToListAsync(cancellationToken);
         }
+
 
         public async Task<User?> FindByIdAsync(Guid userId, CancellationToken cancellationToken)
         {
@@ -32,6 +35,14 @@ namespace HotelApplication.Repos
         public Task<int> SaveUserAsync(CancellationToken cancellationToken)
         {
             return _appDbContext.SaveChangesAsync(cancellationToken);
+        }
+        public async Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+            return await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.EmailAddress == email, cancellationToken);
         }
     }
 }

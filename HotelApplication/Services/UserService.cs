@@ -13,8 +13,7 @@ namespace HotelApplication.Services
         private readonly IMapper _mapper = mapper;
         public async Task<Response<LoginResponseDto>> LoginAsync(LoginRequestDto requestDto, CancellationToken cancellationToken)
         {
-            var isValidEmail = _authService.IsValidEmail(requestDto.EmailAddress);
-            if (!isValidEmail)
+            if (!_authService.IsValidEmail(requestDto.EmailAddress))
             {
                 return Response<LoginResponseDto>.Failure(new List<string> { $"{requestDto.EmailAddress} is not a valid email Address" });
             }
@@ -33,18 +32,22 @@ namespace HotelApplication.Services
         public async Task<Response<UserResponseDto>> RegisterAsync(CreateUserRequestDto requestDto, CancellationToken cancellationToken)
         {
             var errors = new List<string>();
-            var isValidEmail = _authService.IsValidEmail(requestDto.EmailAddress);
-            if (!isValidEmail)
+            if (!_authService.IsValidEmail(requestDto.EmailAddress))
             {
                 errors.Add($"{requestDto.EmailAddress} is not a valid email Address");
             }
-            var userExists = await _userRepo.FindByEmailAsync(requestDto.EmailAddress, cancellationToken);
-            if (userExists != null)
+            var emailAddress = requestDto.EmailAddress;
+            var username = requestDto.Username;
+            var userExists = await _userRepo.CheckUniqueEmailAndUsername(emailAddress, username, cancellationToken);
+            if (userExists?.Any(u => string.Equals(u.Normalised_Email, emailAddress, StringComparison.OrdinalIgnoreCase))==true)
             {
-                errors.Add($"User with email address {requestDto.EmailAddress} already exists");
+                errors.Add($"User with email address {emailAddress} already exists");
+            }
+            if (userExists?.Any(u => string.Equals(u.Normalised_Username ,username, StringComparison.OrdinalIgnoreCase))==true)
+            {
+                errors.Add($"User with username {username} already exists");
             }
             var passwordCheck = _authService.PasswordChecker(requestDto.Password);
-
             if (!passwordCheck.IsValid)
             {
                 errors.AddRange(passwordCheck.Errors);

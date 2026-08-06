@@ -54,10 +54,11 @@ namespace HotelApplication.Services
         {
             List<Claim> claims = new List<Claim>()
             {
-                new(ClaimTypes.Name,user.FullName),
+                new(ClaimTypes.UserData,user.FullName),
                 new(ClaimTypes.Email, user.EmailAddress),
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Role, user.Role.ToString())
+                new(ClaimTypes.Role, user.Role.ToString()),
+                new(ClaimTypes.Name, user.Username)
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("AuthSettings:JWTKey") ?? throw new InvalidOperationException("AuthSettings:JWTKey is missing from configuration")));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);

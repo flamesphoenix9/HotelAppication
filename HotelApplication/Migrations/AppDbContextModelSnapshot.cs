@@ -22,6 +22,178 @@ namespace HotelApplication.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("HotelApplication.Models.CheckIn", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CheckInTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("check_in_time");
+
+                    b.Property<DateTime?>("CheckOutTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("check_out_time");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("ReceptionistId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("receptionist_id");
+
+                    b.Property<Guid>("ReservationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reservation_id");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("room_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_check_ins");
+
+                    b.HasIndex("ReservationId")
+                        .HasDatabaseName("ix_check_ins_reservation_id");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("ix_check_ins_room_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_check_ins_user_id");
+
+                    b.ToTable("check_ins", (string)null);
+                });
+
+            modelBuilder.Entity("HotelApplication.Models.Reservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTime>("ExpectedCheckIn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expected_check_in");
+
+                    b.Property<DateTime>("ExpectedCheckOut")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expected_check_out");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("RequestedRoomCategory")
+                        .HasColumnType("integer")
+                        .HasColumnName("requested_room_category");
+
+                    b.Property<int>("ReservationStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("reservation_status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id")
+                        .HasName("pk_reservations");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_reservations_user_id");
+
+                    b.ToTable("reservations", (string)null);
+                });
+
+            modelBuilder.Entity("HotelApplication.Models.Room", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_available");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsOccupied")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_occupied");
+
+                    b.Property<int>("RoomCategory")
+                        .HasColumnType("integer")
+                        .HasColumnName("room_category");
+
+                    b.Property<string>("RoonNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("roon_number");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .ValueGeneratedOnUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_rooms");
+
+                    b.HasIndex("RoonNumber")
+                        .IsUnique()
+                        .HasDatabaseName("ix_rooms_roon_number");
+
+                    b.ToTable("rooms", (string)null);
+                });
+
             modelBuilder.Entity("HotelApplication.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -56,6 +228,16 @@ namespace HotelApplication.Migrations
                         .HasColumnType("text")
                         .HasColumnName("last_name");
 
+                    b.Property<string>("Normalised_Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("normalised_email");
+
+                    b.Property<string>("Normalised_Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("normalised_username");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text")
@@ -71,14 +253,85 @@ namespace HotelApplication.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
                     b.HasKey("Id")
                         .HasName("pk_users");
 
-                    b.HasIndex(new[] { "EmailAddress" }, "EmailIndex")
+                    b.HasIndex("EmailAddress")
                         .IsUnique()
                         .HasDatabaseName("ix_users_email_address");
 
+                    b.HasIndex("Normalised_Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_normalised_email");
+
+                    b.HasIndex("Normalised_Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_normalised_username");
+
+                    b.HasIndex("Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_username");
+
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("HotelApplication.Models.CheckIn", b =>
+                {
+                    b.HasOne("HotelApplication.Models.Reservation", "Reservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_check_ins_reservations_reservation_id");
+
+                    b.HasOne("HotelApplication.Models.Room", "Room")
+                        .WithMany("CheckIns")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_check_ins_rooms_room_id");
+
+                    b.HasOne("HotelApplication.Models.User", "User")
+                        .WithMany("CheckIns")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_check_ins_users_user_id");
+
+                    b.Navigation("Reservation");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HotelApplication.Models.Reservation", b =>
+                {
+                    b.HasOne("HotelApplication.Models.User", "User")
+                        .WithMany("Reservations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_reservations_users_user_id");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HotelApplication.Models.Room", b =>
+                {
+                    b.Navigation("CheckIns");
+                });
+
+            modelBuilder.Entity("HotelApplication.Models.User", b =>
+                {
+                    b.Navigation("CheckIns");
+
+                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

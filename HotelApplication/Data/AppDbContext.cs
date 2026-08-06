@@ -7,6 +7,9 @@ namespace HotelApplication.Data
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users => Set<User>();
+        public DbSet<Reservation> Reservations => Set<Reservation>();
+        public DbSet<Room> Rooms => Set<Room>();
+        public DbSet<CheckIn> CheckIns=> Set<CheckIn>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

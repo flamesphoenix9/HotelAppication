@@ -34,7 +34,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 //  Policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("staff-only", policy =>
+    options.AddPolicy("staff", policy =>
     {
         policy.RequireAuthenticatedUser();
         policy.RequireRole(nameof(Roles.Admin), nameof(Roles.Manager), nameof(Roles.Receptionist));
