@@ -14,8 +14,8 @@ namespace HotelApplication.Controllers
     public class ReservationController(IReservationService reservationService) : ControllerBase
     {
         private readonly IReservationService _reservationService = reservationService;
-        [Authorize(Roles = nameof(Roles.Customer))]
         [HttpPost]
+        [Authorize(Roles =nameof(Roles.Customer))]
         public async Task<IActionResult> CreateReservationAsync(CreateReservationRequestDto createReservationRequestDto, CancellationToken cancellationToken)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -32,7 +32,7 @@ namespace HotelApplication.Controllers
             return Ok(result);
         }
         [HttpGet]
-        [Authorize(Roles = nameof(Roles.Customer))]
+        [Authorize]
         public async Task<IActionResult> ViewAllReservationsAsync(CancellationToken cancellationToken)
         {
             var username = User.FindFirstValue(ClaimTypes.Name);
@@ -40,7 +40,9 @@ namespace HotelApplication.Controllers
             var result = await _reservationService.UserViewAllReservationsAsync(username, cancellationToken);
             return Ok(result);
         }
+
         [HttpGet("{reservationId:guid}")]
+        [Authorize]
         public async Task<IActionResult> GetReservationAsync([FromRoute] Guid reservationId, CancellationToken cancellationToken)
         {
             var username = User.FindFirstValue(ClaimTypes.Name);
