@@ -15,11 +15,11 @@ namespace HotelApplication.Controllers
     {
         private readonly IReservationService _reservationService = reservationService;
         [HttpPost]
-        [Authorize(Roles =nameof(Roles.Customer))]
+        [Authorize(Roles = nameof(Roles.Customer))]
         public async Task<IActionResult> CreateReservationAsync(CreateReservationRequestDto createReservationRequestDto, CancellationToken cancellationToken)
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var emailAddress = User.FindFirstValue(ClaimTypes.Email);
+            var emailAddress = User.FindFirstValue(ClaimTypes.Name);
             if (emailAddress == null || userIdClaim == null || !Guid.TryParse(userIdClaim, out Guid userId))
             {
                 return Unauthorized();
@@ -32,13 +32,35 @@ namespace HotelApplication.Controllers
             return Ok(result);
         }
         [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> ViewAllReservationsAsync(CancellationToken cancellationToken)
+        [Authorize(Roles = (nameof(Roles.Customer)))]
+        public async Task<IActionResult> UserViewReservationsByUsernameAsync(CancellationToken cancellationToken)
         {
             var username = User.FindFirstValue(ClaimTypes.Name);
             if (username is null) return Unauthorized();
-            var result = await _reservationService.UserViewAllReservationsAsync(username, cancellationToken);
+            var result = await _reservationService.ViewAllReservationsAsync(username, cancellationToken);
+            if (!result.IsSuccess) return NotFound(result);
             return Ok(result);
+        }
+        [Authorize(Policy = "staff")]
+        [HttpGet("user/{username}")]
+        public async Task<IActionResult> StaffViewReservationsByUsernameAsync(string username, CancellationToken cancellationToken = default)
+        {
+            var result = await _reservationService.ViewAllReservationsAsync(username, cancellationToken);
+            if (!result.IsSuccess) return NotFound(result);
+            return Ok(result);
+        }
+        [HttpPut("cancel/reservationId:guid")]
+        public async Task<IActionResult> CancelReservationAsync(Guid reservationId, CancellationToken cancellationToken= default)
+        {
+            var username = User.FindFirstValue(ClaimTypes.Name);
+            if (username is null) return Unauthorized();
+            var result = await _reservationService.CancelReservationAsync(reservationId, username, cancellationToken);
+            if (!result.IsSuccess)
+            {
+                if (result.Errors.Contains("Forbidden")) return Forbid();
+                return BadRequest(result);
+            }
+            return Ok(result);            
         }
 
         [HttpGet("{reservationId:guid}")]
@@ -46,14 +68,14 @@ namespace HotelApplication.Controllers
         public async Task<IActionResult> GetReservationAsync([FromRoute] Guid reservationId, CancellationToken cancellationToken)
         {
             var username = User.FindFirstValue(ClaimTypes.Name);
-            if (username is null ) return Unauthorized();
+            if (username is null) return Unauthorized();
             Response<ReservationResponseDto>? result;
             if (User.IsInRole(nameof(Roles.Customer)))
             {
                 result = await reservationService.UserViewReservationAsync(reservationId, username, cancellationToken);
             }
-            else if (User.IsInRole(nameof(Roles.Admin)) || 
-                     User.IsInRole(nameof(Roles.Manager)) || 
+            else if (User.IsInRole(nameof(Roles.Admin)) ||
+                     User.IsInRole(nameof(Roles.Manager)) ||
                      User.IsInRole(nameof(Roles.Receptionist)))
             {
                 result = await reservationService.StaffViewReservationAsync(reservationId, cancellationToken);

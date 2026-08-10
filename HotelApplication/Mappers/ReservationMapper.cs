@@ -19,7 +19,7 @@ namespace HotelApplication.Mappers
                     : default,
                 ExpectedCheckIn = createReservationRequestDto.ExpectedCheckIn,
                 ExpectedCheckOut = createReservationRequestDto.ExpectedCheckOut,
-                Username = username
+                 Username = username
             };
         }
       

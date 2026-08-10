@@ -16,10 +16,9 @@ namespace HotelApplication.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    roon_number = table.Column<string>(type: "text", nullable: false),
-                    room_category = table.Column<int>(type: "integer", nullable: false),
-                    is_occupied = table.Column<bool>(type: "boolean", nullable: false),
-                    is_available = table.Column<bool>(type: "boolean", nullable: false),
+                    room_number = table.Column<string>(type: "text", nullable: false),
+                    room_category = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -60,10 +59,10 @@ namespace HotelApplication.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     username = table.Column<string>(type: "text", nullable: false),
-                    requested_room_category = table.Column<int>(type: "integer", nullable: false),
+                    requested_room_category = table.Column<string>(type: "text", nullable: false),
                     expected_check_in = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     expected_check_out = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    reservation_status = table.Column<int>(type: "integer", nullable: false),
+                    reservation_status = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -90,7 +89,6 @@ namespace HotelApplication.Migrations
                     room_id = table.Column<Guid>(type: "uuid", nullable: false),
                     check_in_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     check_out_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    receptionist_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -140,9 +138,9 @@ namespace HotelApplication.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_rooms_roon_number",
+                name: "ix_rooms_room_number",
                 table: "rooms",
-                column: "roon_number",
+                column: "room_number",
                 unique: true);
 
             migrationBuilder.CreateIndex(

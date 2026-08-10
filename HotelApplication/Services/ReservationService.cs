@@ -27,17 +27,18 @@ namespace HotelApplication.Services
                 return Response<CreateReservationResponseDto>.Failure(errors: errors);
             }
 
-            var reservation = requestDto.ToReservationMapper(userId, username);
+            var reservation = requestDto.ToReservationMapper(userId, username.ToUpperInvariant());
             var result = await _reservationRepo.CreateReservationAsync(reservation, cancellationToken);
             var response = _mapper.Map<CreateReservationResponseDto>(result);
             return Response<CreateReservationResponseDto>.Success(response);
         }
-        public async Task<Response<IEnumerable<ReservationResponseDto>>> UserViewAllReservationsAsync(string username, CancellationToken cancellationToken)
+        public async Task<Response<IReadOnlyCollection<ReservationResponseDto>>> ViewAllReservationsAsync(string username, CancellationToken cancellationToken)
         {
             var reservations = await _reservationRepo.GetAllReservationsAsync(username, cancellationToken);
             var result = reservations.Select(_mapper.Map<ReservationResponseDto>).ToList();
-            return Response<IEnumerable<ReservationResponseDto>>.Success(result);
+            return Response<IReadOnlyCollection<ReservationResponseDto>>.Success(result);
         }
+        
         public async Task<Response<ReservationResponseDto>> UserViewReservationAsync(Guid reservationId, string username, CancellationToken cancellationToken)
         {
             var reservation = await _reservationRepo.GetReservationByUserAsync(reservationId, username, cancellationToken);
@@ -51,6 +52,20 @@ namespace HotelApplication.Services
             if (reservation is null) return Response<ReservationResponseDto>.Failure(["Reservation Not found"]);
             var result = _mapper.Map<ReservationResponseDto>(reservation);
             return Response<ReservationResponseDto>.Success(result);
-        }        
+        }
+
+        public async Task<Response<string>> CancelReservationAsync(Guid reservationId, string username,CancellationToken cancellationToken = default)
+        {
+            var normalised_Username = username.Trim().ToUpperInvariant();
+            var reservation = await _reservationRepo.GetReservationByIdAsync(reservationId, cancellationToken);
+            if (reservation is null) return Response<string>.Failure(["Reservation Not Found"]);
+            Console.WriteLine(normalised_Username, reservation.Normalised_Username);
+            if (reservation.Normalised_Username != normalised_Username) return Response<string>.Failure(["Forbidden"]);
+            if (reservation.ReservationStatus == ReservationStatus.CheckedIn) return Response<string>.Failure(["Reservation already checkedIn"]);
+            if (reservation.ReservationStatus == ReservationStatus.Cancelled) return Response<string>.Failure(["Reservation already cancelled"]);
+            reservation.ReservationStatus = ReservationStatus.Cancelled;
+            await _reservationRepo.UpdateReservationAsync(reservation, cancellationToken);
+            return Response<string>.Success("reservatiom cancelled");
+        }
     }
 }

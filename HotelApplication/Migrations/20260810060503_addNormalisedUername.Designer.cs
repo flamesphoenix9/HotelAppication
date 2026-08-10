@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HotelApplication.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260806110349_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260810060503_addNormalisedUername")]
+    partial class addNormalisedUername
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,10 +51,6 @@ namespace HotelApplication.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
-
-                    b.Property<Guid>("ReceptionistId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("receptionist_id");
 
                     b.Property<Guid>("ReservationId")
                         .HasColumnType("uuid")
@@ -115,12 +111,19 @@ namespace HotelApplication.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<int>("RequestedRoomCategory")
-                        .HasColumnType("integer")
+                    b.Property<string>("Normalised_Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("normalised_username");
+
+                    b.Property<string>("RequestedRoomCategory")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("requested_room_category");
 
-                    b.Property<int>("ReservationStatus")
-                        .HasColumnType("integer")
+                    b.Property<string>("ReservationStatus")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("reservation_status");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -161,26 +164,24 @@ namespace HotelApplication.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_available");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
-                    b.Property<bool>("IsOccupied")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_occupied");
-
-                    b.Property<int>("RoomCategory")
-                        .HasColumnType("integer")
-                        .HasColumnName("room_category");
-
-                    b.Property<string>("RoonNumber")
+                    b.Property<string>("RoomCategory")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("roon_number");
+                        .HasColumnName("room_category");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("room_number");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .ValueGeneratedOnUpdate()
@@ -190,9 +191,9 @@ namespace HotelApplication.Migrations
                     b.HasKey("Id")
                         .HasName("pk_rooms");
 
-                    b.HasIndex("RoonNumber")
+                    b.HasIndex("RoomNumber")
                         .IsUnique()
-                        .HasDatabaseName("ix_rooms_roon_number");
+                        .HasDatabaseName("ix_rooms_room_number");
 
                     b.ToTable("rooms", (string)null);
                 });

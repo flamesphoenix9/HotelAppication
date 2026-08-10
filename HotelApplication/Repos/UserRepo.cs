@@ -42,7 +42,14 @@ namespace HotelApplication.Repos
             {
                 return null;
             }
-            return await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.EmailAddress == email, cancellationToken);
+            var normalised_email = email.ToUpperInvariant();
+            return await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Normalised_Email == normalised_email, cancellationToken);
+        }
+
+        public async Task<User?> FindByUsernameAsync(string username, CancellationToken cancellationToken = default)
+        {
+            var normalised_Username = username.ToUpperInvariant();
+            return await _appDbContext.Users.FirstOrDefaultAsync(u => !u.IsDeleted && u.Normalised_Username == normalised_Username);
         }
     }
 }

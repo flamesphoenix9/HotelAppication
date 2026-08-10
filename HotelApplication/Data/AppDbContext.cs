@@ -19,6 +19,10 @@ namespace HotelApplication.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
                 .HasConversion<string>();
+            modelBuilder.Entity<Room>().Property(r => r.RoomCategory).HasConversion<string>();
+            modelBuilder.Entity<Room>().Property(r => r.Status).HasConversion<string>();
+            modelBuilder.Entity<Reservation>().Property(r => r.ReservationStatus).HasConversion<string>();
+            modelBuilder.Entity<Reservation>().Property(r => r.RequestedRoomCategory).HasConversion<string>();
 
             // Global configurations for all entities deriving from BaseEntity
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())

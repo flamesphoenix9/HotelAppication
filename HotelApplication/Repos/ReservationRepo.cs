@@ -14,11 +14,18 @@ namespace HotelApplication.Repos
             return result.Entity;
         }
 
-        public async Task<IEnumerable<Reservation>> GetAllReservationsAsync(string username, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<Reservation>> GetAllReservationsAsync(string username, CancellationToken cancellationToken)
         {
-            var reservations = await _dbContext.Reservations.AsNoTracking().Where(r => r.Username == username && !r.IsDeleted).ToListAsync(cancellationToken);
+            var normalised_Username = username.ToUpperInvariant();
+            var reservations = await _dbContext.Reservations.AsNoTracking().Where(r => r.Normalised_Username == normalised_Username && !r.IsDeleted).ToListAsync(cancellationToken);
             return reservations;
         }
+
+        public async Task<Reservation?> GetReservationByIdAsync(Guid reservationId, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Reservations.AsNoTracking().FirstOrDefaultAsync(r => !r.IsDeleted && r.Id == reservationId, cancellationToken);
+        }
+
         public async Task<Reservation?> GetReservationByUserAsync(Guid reservationId, string username, CancellationToken cancellationToken)
         {
             var reservation = await _dbContext.Reservations.AsNoTracking().Include(r=>r.User).FirstOrDefaultAsync(r => r.Username == username && !r.IsDeleted && r.Id == reservationId);
@@ -26,8 +33,14 @@ namespace HotelApplication.Repos
         }
         public async Task<Reservation?> GetUserReservationByStaffAsync(Guid reservationId, CancellationToken cancellationToken)
         {
-            var reservation = await _dbContext.Reservations.AsNoTracking().Include(r => r.User).FirstOrDefaultAsync(r =>  !r.IsDeleted && r.Id == reservationId, cancellationToken);
+            var reservation = await _dbContext.Reservations.AsNoTracking().Include(r => r.User).FirstOrDefaultAsync(r => !r.IsDeleted && r.Id == reservationId, cancellationToken);
             return reservation;
+        }
+
+        public async Task UpdateReservationAsync(Reservation reservation, CancellationToken cancellationToken = default)
+        {
+            _dbContext.Reservations.Update(reservation);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

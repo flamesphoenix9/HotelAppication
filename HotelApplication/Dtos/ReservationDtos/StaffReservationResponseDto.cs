@@ -1,6 +1,6 @@
 namespace HotelApplication.Dtos.ReservationDtos
 {
-    public class StaffReservationResponseDto
+    public record StaffReservationResponseDto
     {
         public Guid Id { get; init; }
         public string Username { get; init; } = string.Empty;
