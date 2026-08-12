@@ -13,7 +13,9 @@ namespace HotelApplication.MappingProfiles.UserProfiles
         public CreateUserProfile()
         {
             CreateMap<CreateUserRequestDto, User>().ForMember(u => u.PasswordHash, opt => opt.Ignore());
+            CreateMap<AdminCreateUserRequestDto, User>().ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
             CreateMap<User, UserResponseDto>().ForMember(dest => dest.UserId, m => m.MapFrom(s => s.Id)).ForMember(dest => dest.UserRole, m => m.MapFrom(s => s.Role));
+            CreateMap<User, AdminViewUserResponseDto>().ForSourceMember(s => s.PasswordHash, opt => opt.DoNotValidate());
         }
     }
 }

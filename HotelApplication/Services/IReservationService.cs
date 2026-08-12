@@ -6,10 +6,12 @@ namespace HotelApplication.Services
     public interface IReservationService
     {
         Task<Response<CreateReservationResponseDto>> CreateReservationAsync(CreateReservationRequestDto requestDto, Guid userId, string username, CancellationToken cancellationToken);
-        Task<Response<IReadOnlyCollection<ReservationResponseDto>>> ViewAllReservationsAsync(string username, CancellationToken cancellationToken);
-        Task<Response<ReservationResponseDto>> UserViewReservationAsync(Guid reservationId, string username, CancellationToken cancellationToken);
-        Task<Response<string>> CancelReservationAsync(Guid reservationId,string username, CancellationToken cancellationToken = default);
+        Task<Response<IReadOnlyCollection<ReservationResponseDto>>> GetReservationsByUsernameAsync(string username, CancellationToken cancellationToken);
+        Task<Response<ReservationResponseDto>> UserGetReservationByIdAsync(Guid reservationId, string username, CancellationToken cancellationToken);
+
+        Task<Response<string>> CancelReservationAsync(Guid reservationId, string username, CancellationToken cancellationToken = default);
         // STAFF
-        Task<Response<ReservationResponseDto>> StaffViewReservationAsync(Guid reservationId, CancellationToken cancellationToken);
+        Task<Response<ReservationResponseDto>> StaffGetReservationByIdAsync(Guid reservationId, CancellationToken cancellationToken);
+        Task<Response<IReadOnlyCollection<ReservationResponseDto>>> StaffGetAllReservationsAsync( CancellationToken cancellationToken);
     }
 }

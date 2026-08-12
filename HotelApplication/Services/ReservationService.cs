@@ -32,29 +32,23 @@ namespace HotelApplication.Services
             var response = _mapper.Map<CreateReservationResponseDto>(result);
             return Response<CreateReservationResponseDto>.Success(response);
         }
-        public async Task<Response<IReadOnlyCollection<ReservationResponseDto>>> ViewAllReservationsAsync(string username, CancellationToken cancellationToken)
+        public async Task<Response<IReadOnlyCollection<ReservationResponseDto>>> GetReservationsByUsernameAsync(string username, CancellationToken cancellationToken)
         {
-            var reservations = await _reservationRepo.GetAllReservationsAsync(username, cancellationToken);
+            var reservations = await _reservationRepo.GetReservationsByUsernameAsync(username, cancellationToken);
             var result = reservations.Select(_mapper.Map<ReservationResponseDto>).ToList();
             return Response<IReadOnlyCollection<ReservationResponseDto>>.Success(result);
         }
-        
-        public async Task<Response<ReservationResponseDto>> UserViewReservationAsync(Guid reservationId, string username, CancellationToken cancellationToken)
+
+        public async Task<Response<ReservationResponseDto>> UserGetReservationByIdAsync(Guid reservationId, string username, CancellationToken cancellationToken)
         {
-            var reservation = await _reservationRepo.GetReservationByUserAsync(reservationId, username, cancellationToken);
+            var reservation = await _reservationRepo.GetReservationByIdAsync(reservationId, cancellationToken);
             if (reservation is null) return Response<ReservationResponseDto>.Failure(["Reservation Not found"]);
-            var result = _mapper.Map<ReservationResponseDto>(reservation);
-            return Response<ReservationResponseDto>.Success(result);
-        }
-         public async Task<Response<ReservationResponseDto>> StaffViewReservationAsync(Guid reservationId, CancellationToken cancellationToken)
-        {
-            var reservation = await _reservationRepo.GetUserReservationByStaffAsync(reservationId, cancellationToken);
-            if (reservation is null) return Response<ReservationResponseDto>.Failure(["Reservation Not found"]);
+            if (reservation.Normalised_Username != username.ToUpperInvariant()) return Response<ReservationResponseDto>.Failure(["Unauthorized"]);
             var result = _mapper.Map<ReservationResponseDto>(reservation);
             return Response<ReservationResponseDto>.Success(result);
         }
 
-        public async Task<Response<string>> CancelReservationAsync(Guid reservationId, string username,CancellationToken cancellationToken = default)
+        public async Task<Response<string>> CancelReservationAsync(Guid reservationId, string username, CancellationToken cancellationToken = default)
         {
             var normalised_Username = username.Trim().ToUpperInvariant();
             var reservation = await _reservationRepo.GetReservationByIdAsync(reservationId, cancellationToken);
@@ -67,5 +61,23 @@ namespace HotelApplication.Services
             await _reservationRepo.UpdateReservationAsync(reservation, cancellationToken);
             return Response<string>.Success("reservatiom cancelled");
         }
+        public async Task<Response<IReadOnlyCollection<ReservationResponseDto>>> StaffGetAllReservationsAsync(CancellationToken cancellationToken)
+        {
+            var reservations = await _reservationRepo.StaffGetAllReservationsAsync(cancellationToken);
+            if (reservations == null || !reservations.Any()) return Response<IReadOnlyCollection<ReservationResponseDto>>.Failure(["No reservations found"]);
+            var result = reservations.Select(r=> _mapper.Map<ReservationResponseDto>(r)).ToList();
+            return Response<IReadOnlyCollection<ReservationResponseDto>>.Success(result);
+        }
+
+        public async Task<Response<ReservationResponseDto>> StaffGetReservationByIdAsync(Guid reservationId, CancellationToken cancellationToken)
+        {
+            var reservation = await _reservationRepo.GetReservationByIdAsync(reservationId, cancellationToken);
+            if (reservation is null) return Response<ReservationResponseDto>.Failure(new List<string>{"Reservation Not found"});
+            var result = _mapper.Map<ReservationResponseDto>(reservation);
+            return Response<ReservationResponseDto>.Success(result);
+        }
+
+
+        
     }
 }

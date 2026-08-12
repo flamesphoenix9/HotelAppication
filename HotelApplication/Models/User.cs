@@ -32,14 +32,14 @@ namespace HotelApplication.Models
             }
         }
         [Required]
-        public string Normalised_Email { get; private set; } = string.Empty;
+        public string Normalised_Email { get; set; } = string.Empty;
         [Required]
         public string Username { get=>_userName; set{
                 _userName = value;
                 Normalised_Username = value?.Trim().ToUpperInvariant() ?? string.Empty;
             } } 
         [Required]
-        public string Normalised_Username { get; private set; } = string.Empty;
+        public string Normalised_Username { get;  set; } = string.Empty;
         [Required]
         public string FirstName { get; set; } = string.Empty;
         [Required]
@@ -52,5 +52,17 @@ namespace HotelApplication.Models
         public string FullName => $"{FirstName} {LastName}".Trim();
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
         public ICollection<CheckIn> CheckIns { get; set; } = new List<CheckIn>();
+
+        public void DeactivateUserAccount()
+        {
+            base.SoftDelete();
+            base.Touch();
+        }
+        public void ActivateUserAccount()
+        {
+            IsDeleted = false;
+            DeletedAt = null;
+            base.Touch();
+        }
     }
 }

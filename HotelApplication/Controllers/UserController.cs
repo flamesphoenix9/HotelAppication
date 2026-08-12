@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using HotelApplication.Dtos;
+using HotelApplication.Models;
 using HotelApplication.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,30 @@ namespace HotelApplication.Controllers
                 return Unauthorized();
             }
             var result = await _userservice.ViewProfileAsyync(userId, cancellationToken);
+            return Ok(result);
+        }
+        [Authorize(Roles = nameof(Roles.Admin))]
+        [HttpPost("admin/register-user")]
+        public async Task<IActionResult> AdminRegisterUserAsync(AdminCreateUserRequestDto adminCreateUserRequestDto, CancellationToken cancellationToken = default)
+        {
+            var result = await _userservice.AdminRegisterUserAsync(adminCreateUserRequestDto, cancellationToken);
+            if (!result.IsSuccess) return BadRequest(result);
+            return Ok(result);
+        }
+        [Authorize(Roles = nameof(Roles.Admin))]
+        [HttpPut("admin/user/{userId:guid}/activate-account")]
+        public async Task<IActionResult> ActivateuserAccountAsyc(Guid userId, CancellationToken cancellationToken = default)
+        {
+            var result = await _userservice.AddminActivateUserAsync(userId, cancellationToken);
+            if (!result.IsSuccess) return BadRequest(result);
+            return Ok(result);
+        }
+        [Authorize(Roles = nameof(Roles.Admin))]
+        [HttpPut("admin/user/{userId:guid}/deactivate-account")]
+        public async Task<IActionResult> DeactivateuserAccountAsyc(Guid userId, CancellationToken cancellationToken= default)
+        {
+            var result = await _userservice.AdminDeactivateUserAsync(userId, cancellationToken);
+            if (!result.IsSuccess) return BadRequest(result);
             return Ok(result);
         }
     }
