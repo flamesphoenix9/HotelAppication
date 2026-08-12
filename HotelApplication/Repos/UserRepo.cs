@@ -29,7 +29,7 @@ namespace HotelApplication.Repos
 
         public async Task<User?> FindByIdAsync(Guid userId, CancellationToken cancellationToken)
         {
-            return await _appDbContext.Users.FindAsync(userId, cancellationToken);
+            return await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u=>u.Id ==userId, cancellationToken);
         }
 
         public Task<int> SaveUserAsync(CancellationToken cancellationToken)
@@ -49,7 +49,18 @@ namespace HotelApplication.Repos
         public async Task<User?> FindByUsernameAsync(string username, CancellationToken cancellationToken = default)
         {
             var normalised_Username = username.ToUpperInvariant();
-            return await _appDbContext.Users.FirstOrDefaultAsync(u => !u.IsDeleted && u.Normalised_Username == normalised_Username);
+            return await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => !u.IsDeleted && u.Normalised_Username == normalised_Username);
+        }
+
+        public async Task<IReadOnlyCollection<User>> AdminGetAllUsersAsync(CancellationToken cancellationToken = default)
+        {
+            return await _appDbContext.Users.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public async Task UpdateUsersAsync(User user, CancellationToken cancellationToken = default)
+        {
+            _appDbContext.Users.Update(user);
+            await _appDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

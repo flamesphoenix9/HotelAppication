@@ -43,7 +43,7 @@ namespace HotelApplication.Repos
         
         public async Task<ICollection<CheckIn>> GetCheckInsByRoomNumberAsync(string roomNumber, CancellationToken cancellationToken= default)
         {
-            var roomCheckIns = await _dbContext.CheckIns.AsNoTracking().Include(c=>c.Room).Include(c=>c.User).Where(c => c.Room.RoomNumber == roomNumber && !c.IsDeleted).OrderByDescending(c=>c.CheckInTime).ToListAsync(cancellationToken);
+            var roomCheckIns = await _dbContext.CheckIns.AsNoTracking().Include(c=>c.Room).Include(c=>c.User).Where(c => c.Room.RoomNumber == roomNumber ).OrderByDescending(c=>c.CheckInTime).ToListAsync(cancellationToken);
             return roomCheckIns;
         }
 
