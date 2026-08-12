@@ -10,5 +10,7 @@ namespace HotelApplication.Repos
 ;        Task<User?> FindByEmailAsync(string email, CancellationToken cancellationToken);
         Task<List<User>?> CheckUniqueEmailAndUsername(string email,string username, CancellationToken cancellationToken);
         Task<int> SaveUserAsync(CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<User>> AdminGetAllUsersAsync(CancellationToken cancellationToken = default);
+        Task UpdateUsersAsync(User user, CancellationToken cancellationToken = default);
     }
 }

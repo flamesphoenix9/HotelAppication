@@ -107,8 +107,6 @@ namespace HotelApplication.Services
         {
             var user = await _userRepo.FindByUsernameAsync(username, cancellationToken);
             if (user is null) return Response<IReadOnlyCollection<CheckInResponseDto>>.Failure([$"User with username {username} not found"]);
-            Console.WriteLine(user.Username);
-            Console.WriteLine("hgfdsrtyuioiuytre");
             var userCheckIns = await _checkInRepo.GetCheckInsByUsernameAsync(username.ToUpperInvariant(), cancellationToken);
             var result = userCheckIns.Select(u => _mapper.Map<CheckInResponseDto>(u)).ToList();
             return Response<IReadOnlyCollection<CheckInResponseDto>>.Success(result);

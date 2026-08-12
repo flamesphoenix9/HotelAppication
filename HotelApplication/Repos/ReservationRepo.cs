@@ -14,7 +14,7 @@ namespace HotelApplication.Repos
             return result.Entity;
         }
 
-        public async Task<IReadOnlyCollection<Reservation>> GetAllReservationsAsync(string username, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<Reservation>> GetReservationsByUsernameAsync(string username, CancellationToken cancellationToken)
         {
             var normalised_Username = username.ToUpperInvariant();
             var reservations = await _dbContext.Reservations.AsNoTracking().Where(r => r.Normalised_Username == normalised_Username && !r.IsDeleted).ToListAsync(cancellationToken);
@@ -37,10 +37,17 @@ namespace HotelApplication.Repos
             return reservation;
         }
 
+        public async Task<IReadOnlyCollection<Reservation>> StaffGetAllReservationsAsync(CancellationToken cancellationToken = default)
+        {
+            var reservations = await _dbContext.Reservations.AsNoTracking().ToListAsync();
+            return reservations;
+        }
+
         public async Task UpdateReservationAsync(Reservation reservation, CancellationToken cancellationToken = default)
         {
             _dbContext.Reservations.Update(reservation);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+        
     }
 }
