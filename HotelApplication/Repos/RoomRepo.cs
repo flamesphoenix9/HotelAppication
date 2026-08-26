@@ -21,13 +21,13 @@ namespace HotelApplication.Repos
 
         public async Task<IReadOnlyCollection<Room>> GetAllRoomsAsync(CancellationToken cancellationToken = default)
         {
-            var rooms = await _dbContext.Rooms.AsNoTracking().Where(r => !r.IsDeleted).OrderBy(r=>r.RoomNumber).ToListAsync(cancellationToken);
+            var rooms = await _dbContext.Rooms.AsNoTracking().Where(r => !r.IsDeleted).OrderBy(r=>r.RoomCategory).OrderBy(r=>r.RoomNumber).ToListAsync(cancellationToken);
             return rooms;
         }
 
         public async Task<IReadOnlyCollection<Room>> GetAvalaibleRoomsAsync(CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Rooms.AsNoTracking().Where(r => r.Status== RoomStatus.Available && !r.IsDeleted).OrderBy(r=>r.RoomNumber).ToListAsync();
+            return await _dbContext.Rooms.AsNoTracking().Where(r => r.Status== RoomStatus.Available && !r.IsDeleted).OrderBy(r=>r.RoomCategory).OrderBy(r=>r.RoomNumber).ToListAsync();
         }
 
         public async Task<Room?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default)
@@ -46,6 +46,15 @@ namespace HotelApplication.Repos
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
         
+        //  === CHECK IN   
         
+        public async Task<IReadOnlyCollection<Room>> FindAvailableRoomsAsync(RoomCategory category, DateOnly checkIn, DateOnly checkOut, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Rooms.Where(r => !r.IsDeleted && r.RoomCategory == category)
+                    .Where(r => !_dbContext.RoomDateAllocations.Any(allo =>
+                        allo.RoomId == r.Id &&
+                        allo.Date >= checkIn && allo.Date < checkOut
+                    )).ToListAsync(cancellationToken);
+        }
     }
 }

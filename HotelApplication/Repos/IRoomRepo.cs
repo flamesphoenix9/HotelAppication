@@ -14,5 +14,8 @@ namespace HotelApplication.Repos
         Task<Room?> GetByRoomNumberAsync(string roomNumber, CancellationToken cancellationToken = default);
         Task<Room?> GetByIdAsync(Guid roomId, CancellationToken cancellationToken = default);
         Task UpdateRoomAsync(Room room, CancellationToken cancellationToken = default);
+
+        //  === CHECKIN
+        Task<IReadOnlyCollection<Room>> FindAvailableRoomsAsync(RoomCategory category, DateOnly checkIn, DateOnly checkOut, CancellationToken cancellationToken = default);
     }
 }

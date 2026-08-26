@@ -11,12 +11,9 @@ namespace HotelApplication.Models
         Admin = 1,
         Manager = 2,
         Receptionist = 3,
-        Customer = 4
+        Housekeepers= 4,
+        Customer = 5
     };
-    [Index(nameof(Username), IsUnique = true)]
-    [Index(nameof(EmailAddress), IsUnique = true)]
-    [Index(nameof(Normalised_Email), IsUnique = true)]
-    [Index(nameof(Normalised_Username),IsUnique =true)]
     public class User : EntityBase
     {
         private string _emailAddress = string.Empty;
@@ -50,19 +47,18 @@ namespace HotelApplication.Models
         public Roles Role { get; set; } = Roles.Customer;
 
         public string FullName => $"{FirstName} {LastName}".Trim();
-        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
-        public ICollection<CheckIn> CheckIns { get; set; } = new List<CheckIn>();
+        public IReadOnlyCollection<ReservationGroup> ReservationGroups = new List<ReservationGroup>();
 
         public void DeactivateUserAccount()
         {
             base.SoftDelete();
-            base.Touch();
+            Touch();
         }
         public void ActivateUserAccount()
         {
             IsDeleted = false;
             DeletedAt = null;
-            base.Touch();
+            Touch();
         }
     }
 }

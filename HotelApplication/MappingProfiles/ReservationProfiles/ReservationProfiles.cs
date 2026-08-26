@@ -12,9 +12,10 @@ namespace HotelApplication.MappingProfiles.ReservationProfiles
     {
         public ReservationProfiles()
         {
-            CreateMap<Reservation, CreateReservationResponseDto>().ForMember(d => d.RequestedRoomCategory, m => m.MapFrom(s => s.RequestedRoomCategory.ToString()));
-            CreateMap<Reservation, ReservationResponseDto>().ForMember(d => d.RequestedRoomCategory, m => m.MapFrom(s => s.RequestedRoomCategory.ToString())).ForMember(dest => dest.FullName, m => m.MapFrom(s => s.User.FullName)).ForMember(dest => dest.ReservationStatus, m => m.MapFrom(s => s.ReservationStatus.ToString()));
-            CreateMap<Reservation, StaffReservationResponseDto>().ForMember(dest => dest.RequestedRoomCategory, m => m.MapFrom(s => s.RequestedRoomCategory.ToString())).ForMember(dest => dest.FullName, m => m.MapFrom(s => s.User.FullName)).ForMember(dest => dest.ReservationStatus, m => m.MapFrom(s => s.ReservationStatus.ToString()));
+            CreateMap<CreateReservationRequestDto, Reservation>();
+            // CreateMap<Reservation, CreateReservationResponseDto>().ForMember(d => d.RequestedRoomCategory, m => m.MapFrom(s => s.ReservationCategory.ToString()));
+            CreateMap<Reservation, ReservationResponseDto>().ForMember(d => d.ReservationCategory, m => m.MapFrom(s => s.ReservationCategory.ToString())).ForMember(dest => dest.ReservationStatus, m => m.MapFrom(s => s.ReservationStatus.ToString()));
+            CreateMap<Reservation, StaffReservationResponseDto>().ForMember(dest => dest.RequestedRoomCategory, m => m.MapFrom(s => s.ReservationCategory.ToString())).ForMember(dest => dest.ReservationStatus, m => m.MapFrom(s => s.ReservationStatus.ToString()));
         }
     }
 }

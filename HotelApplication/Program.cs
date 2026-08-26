@@ -1,3 +1,4 @@
+using System.Net.Http.Headers; // paystack
 using System.Text;
 using HotelApplication.Data;
 using HotelApplication.Models;
@@ -7,12 +8,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Serilog; //   logging
+
+
+//  SERILOG
+
+Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Log.Information("Starting application");
 
-builder.Services.AddControllers();
+// Add services to the container.
+builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention());
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 //  JWT Authentication Scheme
@@ -34,10 +42,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 //  Policies
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("front-desk", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(nameof(Roles.Admin),
+                            nameof(Roles.Manager),
+                            nameof(Roles.Receptionist));
+    });
+    options.AddPolicy("management", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(nameof(Roles.Admin),
+                            nameof(Roles.Manager));
+    });
     options.AddPolicy("staff", policy =>
     {
         policy.RequireAuthenticatedUser();
-        policy.RequireRole(nameof(Roles.Admin), nameof(Roles.Manager), nameof(Roles.Receptionist));
+        policy.RequireRole(nameof(Roles.Admin),
+                            nameof(Roles.Manager),
+                            nameof(Roles.Housekeepers),
+                            nameof(Roles.Receptionist));
+    });
+    options.AddPolicy("housekeeping", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireRole(nameof(Roles.Housekeepers),
+                            nameof(Roles.Manager),
+                            nameof(Roles.Admin));
     });
 });
 //  Swagger
@@ -71,18 +102,30 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
-builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IReservationGroupService, ReservationGroupService>();
+builder.Services.AddScoped<IReservationGroupRepo, ReservationGroupRepo>();
 builder.Services.AddScoped<IReservationRepo, ReservationRepo>();
-builder.Services.AddScoped<ICheckInService, CheckInService>();
-builder.Services.AddScoped<ICheckInRepo, CheckInRepo>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IRoomRepo, RoomRepo>();
+builder.Services.AddScoped<IRoomDateAllocationRepo, RoomDateAllocationRepo>();
+builder.Services.AddScoped<IRoomTypePriceRepo, RoomTypePriceRepo>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+//  ===   PAYSTACK
+builder.Services.AddHttpClient<IPaymentService, PaystackPaymentService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.paystack.co/");
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", builder.Configuration["Paystack:SecretKey"]);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+    
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    Log.Information("=====     DEVELOPMENT       =====");
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseSwaggerUI(options =>
@@ -99,9 +142,11 @@ if (app.Environment.IsDevelopment())
 
 }
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
+
+Log.Information("==========         Server starting              ==========");
 app.Run();

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,12 +25,13 @@ namespace HotelApplication.Models
         public string RoomNumber { get; set; } = string.Empty;
         [Required]
         public RoomCategory RoomCategory { get; set; }
+        [Required]
+        [Column(TypeName ="decimal(10,2)")]
+        public decimal PricePerNight { get; set; }
         public bool IsOccupied => Status == RoomStatus.Occupied;
         public bool IsAvailable => Status == RoomStatus.Available;
         [Required]
         public RoomStatus Status { get; private set; } = RoomStatus.Available;
-        public ICollection<CheckIn> CheckIns { get; set; } = new List<CheckIn>();
-
         public void CheckIn()
         {
             if (Status != RoomStatus.Available)
