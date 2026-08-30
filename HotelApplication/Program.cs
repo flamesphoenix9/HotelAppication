@@ -101,17 +101,21 @@ builder.Services.AddControllers()
 //  Auto Mapper
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 //  Dependency Injection
+//  Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IReservationGroupService, ReservationGroupService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IRoomTypePriceService, RoomTypePriceService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// REPOS
+builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IReservationGroupRepo, ReservationGroupRepo>();
 builder.Services.AddScoped<IReservationRepo, ReservationRepo>();
-builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IRoomRepo, RoomRepo>();
 builder.Services.AddScoped<IRoomDateAllocationRepo, RoomDateAllocationRepo>();
 builder.Services.AddScoped<IRoomTypePriceRepo, RoomTypePriceRepo>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //  ===   PAYSTACK
 builder.Services.AddHttpClient<IPaymentService, PaystackPaymentService>(client =>
@@ -132,7 +136,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HotelsAPI v2");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelsAPI v1");
         options.RoutePrefix = string.Empty;
     });
     //  Seed Database

@@ -18,6 +18,7 @@ namespace HotelApplication.Services
                                         IRoomTypePriceRepo roomTypePriceRepo,
                                         IRoomRepo roomRepo,
                                         IRoomDateAllocationRepo roomDateAllocationRepo,
+                                        IReservationRepo reservationRepo,
                                         IUnitOfWork unitOfWork,
                                         IMapper mapper,
                                         ILogger<ReservationGroupService> logger,
@@ -29,8 +30,9 @@ namespace HotelApplication.Services
         private readonly IUserRepo _userRepo = userRepo;
         private readonly IRoomRepo _roomRepo = roomRepo;
         private readonly IRoomDateAllocationRepo _allocationRepo = roomDateAllocationRepo;
+        private readonly IReservationRepo _reservationRepo = reservationRepo;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly ILogger _logger = logger;
+        private readonly ILogger<ReservationGroupService> _logger = logger;
         private readonly IPaymentService _paymentService = paymentService;
 
         public async Task<Response<ReservationGroupResponseDto>> CreateReservationGroupAsync(Guid userId, CreateReservationGroupRequestDto requestDto, CancellationToken cancellationToken = default)
@@ -93,7 +95,6 @@ namespace HotelApplication.Services
                     }
                     assignedRoomIds.Add(room.Id);
                     reservation.AssignRoomToReservation(room.Id, room.RoomNumber);
-
                     for (var d = reservation.ExpectedCheckIn; d < reservation.ExpectedCheckOut; d = d.AddDays(1))
                     {
                         var roomDateAllcation = new RoomDateAllocation
@@ -112,10 +113,10 @@ namespace HotelApplication.Services
                     Amount: reservationGroup.AmountPayable,
                     Reference: reservationGroup.ReservationGroupCode,
                     CallbackUrl: "");
+
                 var result = await _paymentService.InitializePaymentAsync(paymentInitializeRequest, cancellationToken);
                 if (result is null || !result.IsSuccess || string.IsNullOrEmpty(result.AuthorizationUrl))
                 {
-                    await _unitOfWork.RollBackAsync(cancellationToken);
                     return Response<PaymentInitializeResponseDto>.Failure([result?.ErrorMessage ?? "", "Payment initialization failed"]);
                 }
                 var paymentInitializeResponse = new PaymentInitializeResponseDto
@@ -123,6 +124,7 @@ namespace HotelApplication.Services
                     AuthorizationUrl = result.AuthorizationUrl,
                     GroupCode = result.Reference ?? reservationGroup.ReservationGroupCode
                 };
+                _reservationGroupRepo.UpdateReservationGroup(reservationGroup);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return Response<PaymentInitializeResponseDto>.Success(paymentInitializeResponse);
             }
@@ -151,6 +153,7 @@ namespace HotelApplication.Services
                 return Response<bool>.Failure([$"cannot confirm payment for reservation with status {reservationGroup.ReservationGroupStatus}"]);
             }
             reservationGroup.ConfirmPayment();
+            _reservationGroupRepo.UpdateReservationGroup(reservationGroup);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             _logger.LogInformation($"Payment for reservation group:  {reservationGroupCode} confirmed successfully via webhook");
             return Response<bool>.Success(true);
@@ -186,6 +189,7 @@ namespace HotelApplication.Services
                 return Response<ReservationGroupResponseDto>.Failure([$"Paid amount {verifyResult.Amount} is lesser than actual reservation cost {reservationGroup.AmountPayable} "]);
             }
             reservationGroup.ConfirmPayment();
+            _reservationGroupRepo.UpdateReservationGroup(reservationGroup);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             var responseDto = _mapper.Map<ReservationGroupResponseDto>(reservationGroup);
             return Response<ReservationGroupResponseDto>.Success(responseDto);
@@ -238,7 +242,18 @@ namespace HotelApplication.Services
             return Response<ReservationGroupResponseDto>.Success(result);
 
         }
-        private static List<string> ValidateReservationDatesAndCategories(List<CreateReservationRequestDto> reservationRequestDtos)
+        public async Task<Response<IReadOnlyCollection<ReservationGroupResponseDto>>> GetAllReservationGroupsAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            var reservationGroups = await _reservationGroupRepo.GetReservationGroupByUserIdAsync(userId, cancellationToken);
+            if (reservationGroups.Count < 1)
+            {
+                return Response<IReadOnlyCollection<ReservationGroupResponseDto>>.Failure(["Reservation not found"]);
+            }
+            var result = reservationGroups.Select(rg => _mapper.Map<ReservationGroupResponseDto>(rg)).ToList();
+            return Response<IReadOnlyCollection<ReservationGroupResponseDto>>.Success(result);
+        }
+
+         private static List<string> ValidateReservationDatesAndCategories(List<CreateReservationRequestDto> reservationRequestDtos)
         {
             var errors = new List<string>();
 

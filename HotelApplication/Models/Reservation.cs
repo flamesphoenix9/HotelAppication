@@ -62,6 +62,7 @@ namespace HotelApplication.Models
             {
                 throw new InvalidOperationException($"Cannot check out reservation;Status : {ReservationStatus}");
             }
+            ReservationStatus = ReservationStatusEnum.CheckedOut;
             ActualCheckOutTime = checkOutTime ?? DateTime.UtcNow;
         }
         public void CancelReservation()
