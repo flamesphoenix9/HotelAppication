@@ -10,9 +10,13 @@ namespace HotelApplication.Dtos.ReservationDtos
         public int NumberOfDays { get; init; }
         public string ReservationStatus { get; init; } = string.Empty;
         public string AssignedRoomId { get; init; } = string.Empty;
+        public string? AssignedRoomNumber { get; init; }
         public decimal PricePerNight { get; init; }
-        public decimal ReservationTotal { get; init; } 
-        public string RoomNumber { get; init; } = string.Empty;
+        public decimal ReservationTotal { get; init; }
+        public DateTime? ActualCheckInTime { get; init; }
+        public DateTime? ActualCheckOutTime{ get; init; }
+        public string? CheckInByName { get; init; }
+        public string? CheckInByEmailAddress { get; init; }
 
     }
 }

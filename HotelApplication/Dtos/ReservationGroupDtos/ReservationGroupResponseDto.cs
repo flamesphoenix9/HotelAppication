@@ -8,6 +8,7 @@ namespace HotelApplication.Dtos.ReservationGroupDtos
 {
     public record ReservationGroupResponseDto
     {
+        public Guid Id{ get; init; }
         public string ReservationGroupCode { get; init; } = string.Empty;
         public decimal AmountPayable { get; init; }
         public string ReservationGroupStatus { get; init; }=string.Empty;

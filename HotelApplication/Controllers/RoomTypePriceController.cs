@@ -14,10 +14,10 @@ namespace HotelApplication.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Policy ="management")]
-    public class RoomTypePriceController(ILogger logger,
+    public class RoomTypePriceController(ILogger<RoomTypePriceController> logger,
                                         IRoomTypePriceService roomTypePriceService) : ControllerBase
     {
-        private readonly ILogger _logger = logger;
+        private readonly ILogger<RoomTypePriceController> _logger = logger;
         private readonly IRoomTypePriceService _roomTypePriceService = roomTypePriceService;
 
         [HttpPost]
@@ -61,7 +61,7 @@ namespace HotelApplication.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("{roomTypePriceId:guid}/update")]
+        [HttpGet("{roomTypePriceId:guid}")]
         [ProducesResponseType(typeof(Response<RoomTypePriceResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetRoomPricingByIdAsync([FromRoute]Guid roomTypePriceId, CancellationToken cancellationToken= default)

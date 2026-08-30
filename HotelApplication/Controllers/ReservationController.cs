@@ -28,7 +28,7 @@ namespace HotelApplication.Controllers
         {
             var isStaff = User.IsInRole(nameof(Roles.Manager)) || User.IsInRole(nameof(Roles.Receptionist)) || User.IsInRole(nameof(Roles.Admin));
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (Guid.TryParse(userIdClaim, out var userId))
+            if (!Guid.TryParse(userIdClaim, out var userId))
             {
                 return Unauthorized();
             }
@@ -45,7 +45,7 @@ namespace HotelApplication.Controllers
         }
 
         [Authorize(Policy = "front-desk")]
-        [HttpPut("reservationId:guid/checkIn")]
+        [HttpPut("{reservationId:guid}/checkIn")]
         [ProducesResponseType(typeof(Response<ReservationResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CheckInReservationAsync([FromRoute] Guid reservationId, [FromBody] ReservationCheckInRequestDto reservationCheckInRequestDto, CancellationToken cancellationToken = default)
@@ -61,7 +61,7 @@ namespace HotelApplication.Controllers
         }
 
         [Authorize(Policy = "front-desk")]
-        [HttpPut("reservationId:guid/checkOut")]
+        [HttpPut("{reservationId:guid}/checkOut")]
         [ProducesResponseType(typeof(Response<ReservationResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CheckOutReservationAsync([FromRoute] Guid reservationId, CancellationToken cancellationToken = default)
@@ -77,7 +77,7 @@ namespace HotelApplication.Controllers
         }
         
         [Authorize(Policy ="front-desk")]
-        [HttpPut("reservationId:guid/assign-room")]
+        [HttpPut("{reservationId:guid}/assign-room")]
         [ProducesResponseType(typeof(Response<ReservationResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateAssignedRoomAsync([FromRoute] Guid reservationId, CancellationToken cancellationToken= default)

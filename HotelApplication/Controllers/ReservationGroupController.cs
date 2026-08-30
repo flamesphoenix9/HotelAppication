@@ -42,6 +42,24 @@ namespace HotelApplication.Controllers
             return StatusCode(StatusCodes.Status201Created, response);
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(Response<IReadOnlyCollection<ReservationGroupResponseDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAllReservationGroupsAsync(CancellationToken cancellationToken = default)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+            var response = await _reservationGroupService.GetAllReservationGroupsAsync(userId, cancellationToken);
+            if (!response.IsSuccess)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
         [HttpPost("{reservationGroupId:guid}/initialize-payment")]
         [Authorize(Roles = nameof(Roles.Customer))]
         [ProducesResponseType(typeof(Response<PaymentInitializeResponseDto>), StatusCodes.Status200OK)]

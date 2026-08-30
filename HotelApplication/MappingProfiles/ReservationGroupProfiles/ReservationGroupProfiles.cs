@@ -13,7 +13,7 @@ namespace HotelApplication.MappingProfiles.ReservationGroupProfiles
     {
         public ReservationGroupProfiles()
         {
-            CreateMap<Reservation, ReservationResponseDto>().ForMember(d => d.RoomNumber, m => m.MapFrom(s => s.AssignedRoom != null ? s.AssignedRoom.RoomNumber : string.Empty));
+            CreateMap<Reservation, ReservationResponseDto>();
             CreateMap<ReservationGroup, ReservationGroupResponseDto>().ForMember(d => d.Username, m => m.MapFrom(s => s.User != null ? s.User.Username : string.Empty));
         }
     }
