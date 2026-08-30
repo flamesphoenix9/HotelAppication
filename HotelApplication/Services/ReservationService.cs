@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using AutoMapper;
 using HotelApplication.Data;
@@ -26,6 +27,10 @@ namespace HotelApplication.Services
 
         public async Task<Response<ReservationResponseDto>> CheckInReservationAsyc(Guid reservationId, ReservationCheckInRequestDto requestDto, CancellationToken cancellationToken = default)
         {
+            if(!MailAddress.TryCreate(requestDto.CheckInByEmailAddress, out var CheckInByEmail))
+            {
+                return Response<ReservationResponseDto>.Failure([$"Invalid email address {requestDto.CheckInByEmailAddress}"]);
+            }
             var reservation = await _reservationRepo.GetReservationByIdAsync(reservationId, cancellationToken);
             if (reservation is null)
             {
@@ -55,8 +60,9 @@ namespace HotelApplication.Services
                 return Response<ReservationResponseDto>.Failure([$"Assigned Room {assignedRoom.RoomNumber} is not available; room status { assignedRoom.Status}", "please assign a new room"]);
             }
             assignedRoom.CheckIn();
-            reservation.CheckIn(requestDto.CheckInNyName, requestDto.CheckInByEmailAddress, DateTime.UtcNow);
-            
+            reservation.CheckIn(requestDto.CheckInByName, CheckInByEmail.Address, DateTime.UtcNow);
+            _reservationRepo.UpdateReservation(reservation);
+            _roomRepo.UpdateRoom(assignedRoom);
             //  Save changes
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             var result = _mapper.Map<ReservationResponseDto>(reservation);
@@ -85,7 +91,8 @@ namespace HotelApplication.Services
             }
             assignedRoom.CheckOut();
             reservation.CheckOut(DateTime.UtcNow);
-
+            _reservationRepo.UpdateReservation(reservation);
+            _roomRepo.UpdateRoom(assignedRoom);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             var result = _mapper.Map<ReservationResponseDto>(reservation);
             return Response<ReservationResponseDto>.Success(result);
@@ -114,6 +121,10 @@ namespace HotelApplication.Services
             {
                 return Response<ReservationResponseDto>.Failure([$"Resevation with ID {reservationId} not found"]);
             }
+            if(reservation.ReservationStatus != Models.ReservationStatusEnum.Reserved)
+            {
+                return Response<ReservationResponseDto>.Failure([$"Cannot reassign room for reservation with status {reservation.ReservationStatus}"]);
+            }
             var prevRoomNumber = reservation.AssignedRoomNumber;
             await _roomDateAllocationRepo.DeleteAllocationRange(reservation.Id, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -125,8 +136,9 @@ namespace HotelApplication.Services
                 return Response<ReservationResponseDto>.Failure([$"Couldn't find any available room"]);
             }
             reservation.AssignRoomToReservation(newRoom.Id, newRoom.RoomNumber);
+            _reservationRepo.UpdateReservation(reservation);
+            await _unitOfWork.CommitAsync(cancellationToken);
             _logger.LogInformation("Room {roomNumber} reassigned for reservation {reservationId}; previous room {prevRoomNumber}", newRoom.RoomNumber, reservationId, prevRoomNumber);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             var result = _mapper.Map<ReservationResponseDto>(reservation);
             return Response<ReservationResponseDto>.Success(result);
         }

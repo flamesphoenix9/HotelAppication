@@ -7,7 +7,7 @@ namespace HotelApplication.Dtos.ReservationDtos
 {
     public record ReservationCheckInRequestDto
     {
-        public string CheckInNyName { get; init; } = string.Empty;
+        public string CheckInByName { get; init; } = string.Empty;
         public string CheckInByEmailAddress { get; init; } = string.Empty;
     }
 }

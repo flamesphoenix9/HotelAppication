@@ -26,7 +26,7 @@ namespace HotelApplication.Repos
 
         public async Task<IReadOnlyCollection<ReservationGroup>> GetReservationGroupByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            var reservationGroups = await _dbContext.ReservationGroups.AsNoTracking()
+            var reservationGroups = await _dbContext.ReservationGroups.AsNoTracking().Include(rg=>rg.Reservations)
                 .Where(rg => !rg.IsDeleted && rg.UserId == userId)
                 .OrderByDescending(rg=>rg.CreatedAt).ToListAsync(cancellationToken);
             return reservationGroups;
@@ -48,7 +48,7 @@ namespace HotelApplication.Repos
             return reservationGroups;
         }
 
-         public void UpdateReservationGroup(ReservationGroup reservationGroup)
+        public void UpdateReservationGroup(ReservationGroup reservationGroup)
         {
             _dbContext.ReservationGroups.Update(reservationGroup);
         }

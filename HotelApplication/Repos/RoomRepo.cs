@@ -46,8 +46,8 @@ namespace HotelApplication.Repos
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
         
+
         //  === CHECK IN   
-        
         public async Task<IReadOnlyCollection<Room>> FindAvailableRoomsAsync(RoomCategory category, DateOnly checkIn, DateOnly checkOut, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Rooms.Where(r => !r.IsDeleted && r.RoomCategory == category)
@@ -55,6 +55,11 @@ namespace HotelApplication.Repos
                         allo.RoomId == r.Id &&
                         allo.Date >= checkIn && allo.Date < checkOut
                     )).ToListAsync(cancellationToken);
+        }
+
+        public void UpdateRoom(Room room)
+        {
+            _dbContext.Rooms.Update(room);
         }
     }
 }

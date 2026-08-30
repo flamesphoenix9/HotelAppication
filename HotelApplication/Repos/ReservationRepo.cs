@@ -18,6 +18,11 @@ namespace HotelApplication.Repos
             return reservations;
         }
 
+        public void UpdateReservation(Reservation reservation)
+        {
+            _dbContext.Reservations.Update(reservation);
+        }
+
         public async Task UpdateReservationAsync(Reservation reservation, CancellationToken cancellationToken = default)
         {
             _dbContext.Reservations.Update(reservation);
