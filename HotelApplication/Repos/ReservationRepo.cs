@@ -7,16 +7,9 @@ namespace HotelApplication.Repos
     public class ReservationRepo(AppDbContext appDbContext) : IReservationRepo
     {
         private readonly AppDbContext _dbContext = appDbContext;
-        public async Task<Reservation> CreateReservationAsync(Reservation reservation, CancellationToken cancellationToken)
-        {
-            var result = _dbContext.Reservations.Add(reservation);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            return result.Entity;
-        }
-
         public async Task<Reservation?> GetReservationByIdAsync(Guid reservationId, CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Reservations.AsNoTracking().FirstOrDefaultAsync(r => !r.IsDeleted && r.Id == reservationId, cancellationToken);
+            return await _dbContext.Reservations.AsNoTracking().Include(r=>r.ReservationGroup).FirstOrDefaultAsync(r => !r.IsDeleted && r.Id == reservationId, cancellationToken);
         }
 
         public async Task<IReadOnlyCollection<Reservation>> StaffGetAllReservationsAsync(CancellationToken cancellationToken = default)
@@ -36,5 +29,6 @@ namespace HotelApplication.Repos
             _dbContext.UpdateRange(reservations);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+        
     }
 }

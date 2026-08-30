@@ -8,6 +8,10 @@ namespace HotelApplication.Repos
 {
     public interface IRoomTypePriceRepo
     {
-        Task<IReadOnlyDictionary<RoomCategory, decimal>> GetAllRoomTypePrice(CancellationToken cancellationToken=default);
+        Task<IReadOnlyDictionary<RoomCategory, decimal>> GetAllActiveRoomTypePrice(CancellationToken cancellationToken = default);
+        void Add(RoomTypePrice roomTypePrice, CancellationToken cancellationToken = default);
+        Task<IReadOnlyCollection<RoomTypePrice>> GetAllRoomTypePricesAsList(CancellationToken cancellationToken = default);
+        Task<RoomTypePrice?> GetByIdAsync(Guid roomTypePriceId, CancellationToken cancellationToken = default);
+        void Update(RoomTypePrice roomTypePrice);
     }
 }

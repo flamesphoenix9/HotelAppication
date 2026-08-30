@@ -20,7 +20,7 @@ namespace HotelApplication.Data
             //  Ensure Room cannot be booked twice on same day
             modelBuilder.Entity<RoomDateAllocation>().HasIndex(rda => new { rda.Date, rda.RoomId }, "RoomDateIndex").IsUnique();
             //  Ensure there are no two active prices for a category
-            modelBuilder.Entity<RoomTypePrice>().HasIndex(rtp => new { rtp.Category, rtp.IsActive }).IsUnique();
+            modelBuilder.Entity<RoomTypePrice>().HasIndex(rtp => new { rtp.Category }).IsUnique();
             //  Ensure group codes are uniques
             modelBuilder.Entity<ReservationGroup>().HasIndex(rg => rg.ReservationGroupCode).IsUnique();
 

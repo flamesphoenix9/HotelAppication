@@ -38,7 +38,7 @@ namespace HotelApplication.Models
         public decimal ReservationTotal => PricePerNight * NumberOfDays;
 
         //  === NAVIGATION ===
-        public ICollection<RoomDateAllocation> DateAllocations { get; set; } = new List<RoomDateAllocation>();
+        public ICollection<RoomDateAllocation> RoomDateAllocations { get; set; } = new List<RoomDateAllocation>();
         
         public void AssignRoomToReservation(Guid roomId, string roomNumber )
         {
@@ -51,10 +51,10 @@ namespace HotelApplication.Models
             {
                 throw new InvalidOperationException($"Cannoy check in reservation with status {ReservationStatus}");
             }
-            ReservationStatus = ReservationStatusEnum.CheckedIn;
             CheckInByName = checkInByName;
             CheckInByEmailAddress = checkInByEmailAddress;
             ActualCheckInTime = checkInTime ?? DateTime.UtcNow;
+            ReservationStatus = ReservationStatusEnum.CheckedIn;
         }
         public void CheckOut(DateTime? checkOutTime = null)
         {

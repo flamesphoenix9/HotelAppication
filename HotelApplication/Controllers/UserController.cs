@@ -24,7 +24,7 @@ namespace HotelApplication.Controllers
             {
                 return BadRequest(result);
             }
-            return Ok(result);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         [HttpPost("login")]
@@ -61,14 +61,15 @@ namespace HotelApplication.Controllers
 
         [Authorize(Roles = nameof(Roles.Admin))]
         [HttpPost("admin/register-user")]
-        [ProducesResponseType(typeof(Response<AdminViewUserResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response<AdminViewUserResponseDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AdminRegisterUserAsync(AdminCreateUserRequestDto adminCreateUserRequestDto, CancellationToken cancellationToken = default)
         {
             var result = await _userservice.AdminRegisterUserAsync(adminCreateUserRequestDto, cancellationToken);
             if (!result.IsSuccess) return BadRequest(result);
-            return Ok(result);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
+        
         [Authorize(Policy ="management")]
         [HttpPut("admin/user/{userId:guid}/activate-account")]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]

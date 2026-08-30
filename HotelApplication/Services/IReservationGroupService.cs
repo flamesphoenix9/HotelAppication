@@ -18,6 +18,6 @@ namespace HotelApplication.Services
 
         Task<Response<ReservationGroupResponseDto>> GetReservationGroupByIdAsync(Guid reservationgroupid, Guid? userId, bool isStaff = false, CancellationToken cancellationToken = default);
         Task<Response<ReservationGroupResponseDto>> GetReservationGroupByCodeAsync(string code, Guid? userId, bool isStaff = false, CancellationToken cancellationToken = default);
-        // Task<Response<ReservationGroupResponseDto>> CancelReservationgroupAsync(Guid reservationGroupId, CancellationToken cancellationToken = default);
+        Task<Response<ReservationGroupResponseDto>> CancelReservationGroupAsync(Guid reservationGroupId, Guid? userId, bool isStaff, CancellationToken cancellationToken = default);
     }
 }

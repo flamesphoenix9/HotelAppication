@@ -9,5 +9,6 @@ namespace HotelApplication.Repos
     public interface IRoomDateAllocationRepo
     {
         void Add(RoomDateAllocation roomDateAllcation);
+        Task DeleteAllocationRange(Guid reservationId, CancellationToken cancellationToken = default);
     }
 }

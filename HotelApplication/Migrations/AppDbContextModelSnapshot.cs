@@ -300,10 +300,6 @@ namespace HotelApplication.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -316,9 +312,9 @@ namespace HotelApplication.Migrations
                     b.HasKey("Id")
                         .HasName("pk_room_type_prices");
 
-                    b.HasIndex("Category", "IsActive")
+                    b.HasIndex("Category")
                         .IsUnique()
-                        .HasDatabaseName("ix_room_type_prices_category_is_active");
+                        .HasDatabaseName("ix_room_type_prices_category");
 
                     b.ToTable("room_type_prices", (string)null);
                 });
@@ -443,7 +439,7 @@ namespace HotelApplication.Migrations
             modelBuilder.Entity("HotelApplication.Models.RoomDateAllocation", b =>
                 {
                     b.HasOne("HotelApplication.Models.Reservation", "Reservation")
-                        .WithMany("DateAllocations")
+                        .WithMany("RoomDateAllocations")
                         .HasForeignKey("ReservationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -463,7 +459,7 @@ namespace HotelApplication.Migrations
 
             modelBuilder.Entity("HotelApplication.Models.Reservation", b =>
                 {
-                    b.Navigation("DateAllocations");
+                    b.Navigation("RoomDateAllocations");
                 });
 
             modelBuilder.Entity("HotelApplication.Models.ReservationGroup", b =>

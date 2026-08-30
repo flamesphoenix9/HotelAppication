@@ -33,7 +33,6 @@ namespace HotelApplication.Services
         private readonly ILogger _logger = logger;
         private readonly IPaymentService _paymentService = paymentService;
 
-
         public async Task<Response<ReservationGroupResponseDto>> CreateReservationGroupAsync(Guid userId, CreateReservationGroupRequestDto requestDto, CancellationToken cancellationToken = default)
         {
             var user = await _userRepo.FindByIdAsync(userId, cancellationToken);
@@ -44,7 +43,7 @@ namespace HotelApplication.Services
             if (errors.Count > 0) return Response<ReservationGroupResponseDto>.Failure(errors);
 
             //  == GET PRICE DICT
-            var roomTypePriceDict = await _roomTypePriceRepo.GetAllRoomTypePrice(cancellationToken);
+            var roomTypePriceDict = await _roomTypePriceRepo.GetAllActiveRoomTypePrice(cancellationToken);
             var reservationGroup = new ReservationGroup(userId);
 
             foreach (var reservationDto in requestDto.CreateReservationsList)
@@ -72,7 +71,6 @@ namespace HotelApplication.Services
         }
         public async Task<Response<PaymentInitializeResponseDto>> InitializePaymentAsync(Guid reservationGroupId, string email, Guid userId, CancellationToken cancellationToken = default)
         {
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
                 var reservationGroup = await _reservationGroupRepo.GetReservationGroupByIdAsync(reservationGroupId, cancellationToken);
@@ -125,12 +123,11 @@ namespace HotelApplication.Services
                     AuthorizationUrl = result.AuthorizationUrl,
                     GroupCode = result.Reference ?? reservationGroup.ReservationGroupCode
                 };
-                await _unitOfWork.CommitAsync(cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return Response<PaymentInitializeResponseDto>.Success(paymentInitializeResponse);
             }
             catch (Exception)
-            {
-                await _unitOfWork.RollBackAsync(cancellationToken);
+            { 
                 throw;
             }
         }
@@ -167,11 +164,11 @@ namespace HotelApplication.Services
                 _logger.LogWarning("Payment Verifivation failed: Reservation with group code {reservationGroupCode} not found", reservationGroupCode);
                 return Response<ReservationGroupResponseDto>.Failure([$"Reservation with group code {reservationGroupCode} not found"]);
             }
-            if(!isStaff && reservationGroup.UserId != userId)
+            if (!isStaff && reservationGroup.UserId != userId)
             {
                 return Response<ReservationGroupResponseDto>.Failure(["403"]);
             }
-            
+
             if (reservationGroup.ReservationGroupStatus == GroupReservationStatus.PaymentConfirmed || reservationGroup.PaymentConfirmed)
             {
                 var response = _mapper.Map<ReservationGroupResponseDto>(reservationGroup);
@@ -217,12 +214,30 @@ namespace HotelApplication.Services
             if (!isStaff && reservationGroup.UserId != userId)
             {
                 return Response<ReservationGroupResponseDto>.Failure(["403"]);
-
             }
             var result = _mapper.Map<ReservationGroupResponseDto>(reservationGroup);
             return Response<ReservationGroupResponseDto>.Success(result);
         }
+        public async Task<Response<ReservationGroupResponseDto>> CancelReservationGroupAsync(Guid reservationGroupId, Guid? userId, bool isStaff, CancellationToken cancellationToken = default)
+        {
+            var reservationGroup = await _reservationGroupRepo.GetReservationGroupByIdAsync(reservationGroupId, cancellationToken);
+            if (reservationGroup is null) return Response<ReservationGroupResponseDto>.Failure([$"Reservation group with ID {reservationGroupId} not found", "404"]);
+            //  check perms
+            if (!isStaff && reservationGroup.UserId != userId)
+            {
+                return Response<ReservationGroupResponseDto>.Failure(["403"]);
+            }
+            if (reservationGroup.ReservationGroupStatus != GroupReservationStatus.PendingPayment)
+            {
+                return Response<ReservationGroupResponseDto>.Failure([$"Cannot cancel reservation with status: {reservationGroup.ReservationGroupStatus}"]);
+            }
+            reservationGroup.CancelReservationGroup();
+            _reservationGroupRepo.UpdateReservationGroup(reservationGroup);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = _mapper.Map<ReservationGroupResponseDto>(reservationGroup);
+            return Response<ReservationGroupResponseDto>.Success(result);
 
+        }
         private static List<string> ValidateReservationDatesAndCategories(List<CreateReservationRequestDto> reservationRequestDtos)
         {
             var errors = new List<string>();

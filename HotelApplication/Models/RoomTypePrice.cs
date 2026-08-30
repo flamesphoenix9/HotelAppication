@@ -14,7 +14,5 @@ namespace HotelApplication.Models
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal BasePricePerNight { get; set; }
-
-        public bool IsActive { get; set; } = true;
     }
 }

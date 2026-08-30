@@ -128,6 +128,7 @@ namespace HotelApplication.Controllers
             }
             return Ok(response);
         }
+
         [HttpGet("by-code/{reservationGroupCode}")]
         [ProducesResponseType(typeof(Response<ReservationGroupResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
@@ -156,7 +157,36 @@ namespace HotelApplication.Controllers
                 }
                 return NotFound(response);
             }
-
+            return Ok(response);
+        }
+        [HttpPut("cancel/{reservationGroupId:guid}")]
+        [ProducesResponseType(typeof(ReservationGroupResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ErrorResponse),StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CancelReservationGroupAsync(
+            [FromRoute] Guid reservationGroupId,
+            CancellationToken cancellationToken = default)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+            bool isStaff = User.IsInRole(nameof(Roles.Receptionist)) || User.IsInRole(nameof(Roles.Admin)) || User.IsInRole(nameof(Roles.Manager));
+            var response = await _reservationGroupService.CancelReservationGroupAsync(reservationGroupId, userId, isStaff, cancellationToken);
+            if (!response.IsSuccess)
+            {
+                if (response.Errors.Contains("404"))
+                {
+                    return NotFound(response);
+                }
+                if (response.Errors.Contains("403"))
+                {
+                    return Forbid("You do not have the necessary perms");
+                }
+                return BadRequest(response);
+            }
             return Ok(response);
         }
     }

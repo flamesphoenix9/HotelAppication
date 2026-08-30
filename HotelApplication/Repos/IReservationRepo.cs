@@ -4,7 +4,6 @@ namespace HotelApplication.Repos
 {
     public interface IReservationRepo
     {
-        Task<Reservation> CreateReservationAsync(Reservation reservation, CancellationToken cancellationToken = default);
         Task<Reservation?> GetReservationByIdAsync(Guid reservationId, CancellationToken cancellationToken = default);
         Task UpdateReservationAsync(Reservation reservation, CancellationToken cancellationToken = default);
         Task UpdateReservationRangeAsyncc(List<Reservation> reservations, CancellationToken cancellationToken);

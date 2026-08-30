@@ -44,11 +44,6 @@ namespace HotelApplication.Models
         }
         public void CheckOut()
         {
-            if (Status != RoomStatus.Occupied)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot check out of Room {RoomNumber}, Room is not Occupied");
-            }
             Status = RoomStatus.Dirty;
         }
         public void MarkAvailable()

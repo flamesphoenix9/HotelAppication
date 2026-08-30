@@ -10,7 +10,7 @@ namespace HotelApplication.Data
 {
     public class DbInitializer
     {
-        public static async Task SeedDatabaseAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken= default)
+        public static async Task SeedDatabaseAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
             using var scope = serviceProvider.CreateScope();
             var services = scope.ServiceProvider;
@@ -80,9 +80,9 @@ namespace HotelApplication.Data
                 await appDbContext.SaveChangesAsync(cancellationToken);
             }
         }
-        public static async Task SeedRoomsAsync(AppDbContext appDbContext, CancellationToken cancellationToken=default)
+        public static async Task SeedRoomsAsync(AppDbContext appDbContext, CancellationToken cancellationToken = default)
         {
-            if(!await appDbContext.Rooms.AnyAsync(cancellationToken))
+            if (!await appDbContext.Rooms.AnyAsync(cancellationToken))
             {
                 var rooms = new List<Room>();
                 for (int i = 100; i < 106; i++)
@@ -103,6 +103,22 @@ namespace HotelApplication.Data
                 }
                 await appDbContext.Rooms.AddRangeAsync(rooms, cancellationToken);
                 await appDbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+        public static async Task SeedRoomPricesAsync(AppDbContext appDbContext, CancellationToken cancellationToken = default)
+        {
+            if (!await appDbContext.RoomTypePrices.AnyAsync())
+            {
+                var roomTypePrices = new List<RoomTypePrice>();
+                var pricePerNight = 10000m;
+                foreach (var category in Enum.GetValues<RoomCategory>())
+                {
+                    roomTypePrices.Add(new RoomTypePrice
+                    {
+                        Category = category,
+                        BasePricePerNight = pricePerNight
+                    });
+                }
             }
         }
     }

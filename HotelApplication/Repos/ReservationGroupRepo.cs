@@ -48,10 +48,9 @@ namespace HotelApplication.Repos
             return reservationGroups;
         }
 
-        public async Task UpdateReservationGroupAsync(ReservationGroup reservationGroup, CancellationToken cancellationToken = default)
+         public void UpdateReservationGroup(ReservationGroup reservationGroup)
         {
             _dbContext.ReservationGroups.Update(reservationGroup);
-            await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

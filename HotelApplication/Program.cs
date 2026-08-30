@@ -17,11 +17,13 @@ Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Information("Starting application");
+Log.Information("\n \n ===  Starting application");
 
 // Add services to the container.
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention());
+// Bacground Service
+builder.Services.AddHostedService<ExpiredReservationGroupCleanupWorker>();
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 //  JWT Authentication Scheme
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -130,7 +132,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelsAPI v1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "HotelsAPI v2");
         options.RoutePrefix = string.Empty;
     });
     //  Seed Database

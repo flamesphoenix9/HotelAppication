@@ -25,13 +25,13 @@ namespace HotelApplication.Controllers
         }
         [HttpPost]
         [Authorize(Policy ="management")]
-        [ProducesResponseType(typeof(Response<RoomResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response<RoomResponseDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateRoomAsync(CreateRoomRequestDto createRoomRequestDto, CancellationToken cancellationToken = default)
         {
             var result = await _roomService.CraeteRoomAsync(createRoomRequestDto, cancellationToken);
             if (!result.IsSuccess) return BadRequest(result);
-            return Ok(result);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
         [HttpGet("roomId:guid")]
         [Authorize(Policy = "staff")]

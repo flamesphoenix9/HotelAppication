@@ -2,8 +2,8 @@ namespace HotelApplication.Dtos.ReservationDtos
 {
     public record ReservationResponseDto
     {
-       public Guid Id { get; init; }
-         public Guid ReservationGroupId { get; set; }
+        public Guid Id { get; init; }
+        public Guid ReservationGroupId { get; set; }
         public string ReservationCategory { get; init; } = string.Empty;
         public DateOnly ExpectedCheckIn { get; init; }
         public DateOnly ExpectedCheckOut { get; init; }

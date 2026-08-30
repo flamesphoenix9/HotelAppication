@@ -13,6 +13,6 @@ namespace HotelApplication.Repos
         Task<ReservationGroup?> GetReservationGroupByCodeAsync(string reservationGrouCode, CancellationToken cancellationToken = default);
         Task<IReadOnlyCollection<ReservationGroup>> GetReservationGroupByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<IReadOnlyCollection<ReservationGroup>> GetReservationGroupsByDateCreatedAsync(DateTime createdAt, CancellationToken cancellationToken = default);
-        Task UpdateReservationGroupAsync(ReservationGroup reservationGroup, CancellationToken cancellationToken = default);
+        void UpdateReservationGroup(ReservationGroup reservationGroup);
     }
 }
